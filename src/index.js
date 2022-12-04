@@ -7,9 +7,11 @@ const form = document.querySelector("form");
 const input = document.querySelector("input");
 const ul = document.querySelector("ul");
 
+// 오타방지 정의
 const ADD_TODO = "ADD_TODO";
 const DELETE_TODO = "DELETE_TODO";
 
+// function단위로 나눠서 사용
 const addToDo = (text) => {
   return {
     type: ADD_TODO,
@@ -24,31 +26,36 @@ const deleteToDo = (id) => {
   };
 };
 
+// reducer 함수
 const reducer = (state = [], action) => {
   console.log(action);
   switch (action.type) {
     case ADD_TODO:
       return [...state, { text: action.text, id: Date.now() }];
     case DELETE_TODO:
-      return [];
+      // mutatating절대 하지 않고 배열 새로 그려야 함
+      return state.filter((toDo) => toDo.id !== action.id);
     default:
       return state;
   }
 };
 
+// redux 사용을 위한 정의
 const store = createStore(reducer);
 
+//
 const dispatchAddToDo = (text) => {
   store.dispatch(addToDo(text));
 };
 
 const dispatchDeleteToDo = (e) => {
-  const id = e.target.parentNode.id;
+  const id = parseInt(e.target.parentNode.id);
   store.dispatch(deleteToDo(id));
 };
 
 store.subscribe(() => console.log(store.getState()));
 
+// 화면에 todo리스트 그려주기 위한 작업
 const paintToDos = () => {
   const toDos = store.getState();
   ul.innerHTML = "";
@@ -64,6 +71,7 @@ const paintToDos = () => {
   });
 };
 
+// subscribe로 화면에 그려줄 자료 전달
 store.subscribe(paintToDos);
 
 const onSubmit = (e) => {
